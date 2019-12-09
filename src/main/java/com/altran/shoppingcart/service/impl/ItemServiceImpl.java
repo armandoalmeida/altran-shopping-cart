@@ -2,6 +2,7 @@ package com.altran.shoppingcart.service.impl;
 
 import com.altran.shoppingcart.model.Item;
 import com.altran.shoppingcart.repository.ItemRepository;
+import com.altran.shoppingcart.security.util.SecurityUtil;
 import com.altran.shoppingcart.service.ItemService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +22,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item create(Item Item) {
-        Item.set_id(ObjectId.get());
-        repository.save(Item);
-        return Item;
+    public Item create(Item item) {
+        item.set_id(ObjectId.get());
+        item.setId(item.get_id().toString());
+        item.setUser(SecurityUtil.getCurrentUserName());
+        repository.save(item);
+        return item;
     }
 
     @Override
@@ -33,9 +36,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public void updateById(ObjectId id, Item Item) {
-        Item.set_id(id);
-        repository.save(Item);
+    public void updateById(ObjectId id, Item item) {
+        item.set_id(id);
+        item.setId(item.get_id().toString());
+        repository.save(item);
     }
 
     @Override

@@ -4,19 +4,25 @@ import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 @Document
 public @Data
 class Item {
-    @Id
+    @MongoId
     public ObjectId _id;
+
+    private String id;
     @NotEmpty
     private String name;
-    @NotEmpty
+    @NotNull
     @DecimalMin(value = "0.1", inclusive = true)
     private BigDecimal value;
+
+    private String user;
 }

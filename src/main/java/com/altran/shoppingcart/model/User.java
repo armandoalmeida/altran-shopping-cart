@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -15,9 +16,10 @@ import javax.validation.constraints.NotEmpty;
 @AllArgsConstructor
 public @Data
 class User {
-    @Id
+    @MongoId
     public ObjectId _id;
-    @NotEmpty
+
+    private String id;
     private String name;
     @NotEmpty
     @Email

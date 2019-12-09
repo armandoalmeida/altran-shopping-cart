@@ -6,7 +6,6 @@ import com.altran.shoppingcart.repository.UsersRepository;
 import com.altran.shoppingcart.service.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +31,7 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         user.set_id(ObjectId.get());
+        user.setId(user.get_id().toString());
         repository.save(user);
         return user;
     }
@@ -44,6 +44,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateById(ObjectId id, User user) {
         user.set_id(id);
+        user.setId(user.get_id().toString());
         repository.save(user);
     }
 

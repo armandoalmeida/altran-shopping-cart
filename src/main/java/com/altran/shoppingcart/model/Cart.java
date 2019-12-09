@@ -6,7 +6,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotEmpty;
+import java.util.List;
 import java.util.Map;
 
 @Document
@@ -14,9 +14,9 @@ public @Data
 class Cart {
     @Id
     public ObjectId _id;
-    @NotEmpty
-    private User user;
-    private Map<Item, Integer> items;
-    @NotEmpty
+    public String id;
+    private List<String> items;
     private CartStatusEnum status;
+
+    private String user;
 }

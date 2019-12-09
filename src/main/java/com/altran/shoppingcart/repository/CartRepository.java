@@ -5,5 +5,8 @@ import com.altran.shoppingcart.model.Item;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.util.List;
+
 public interface CartRepository extends MongoRepository<Cart, ObjectId> {
+    List<Cart> findByUser(String user);
 }
