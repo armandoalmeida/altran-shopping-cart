@@ -1,4 +1,4 @@
-package com.altran.shoppingcart.security;
+package com.altran.shoppingcart.security.jwt;
 
 import lombok.Getter;
 import lombok.ToString;

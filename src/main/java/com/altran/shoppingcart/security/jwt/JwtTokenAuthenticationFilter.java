@@ -1,4 +1,4 @@
-package com.altran.shoppingcart.security;
+package com.altran.shoppingcart.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -45,7 +45,7 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             // nothing
-            e.printStackTrace();
+            // e.printStackTrace();
         }
 
         chain.doFilter(request, response);

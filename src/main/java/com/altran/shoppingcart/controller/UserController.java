@@ -1,7 +1,7 @@
 package com.altran.shoppingcart.controller;
 
 import com.altran.shoppingcart.model.User;
-import com.altran.shoppingcart.repository.UsersRepository;
+import com.altran.shoppingcart.service.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -13,33 +13,31 @@ import java.util.Optional;
 @RestController
 public class UserController {
     @Autowired
-    private UsersRepository usersRepository;
+    private UserService service;
 
     @GetMapping("/users")
     public List<User> findAll() {
-        return usersRepository.findAll();
+        return service.findAll();
     }
 
     @PostMapping("/users")
+    @ResponseBody
     public User create(@Valid @RequestBody User user) {
-        user.set_id(ObjectId.get());
-        usersRepository.save(user);
-        return user;
+        return service.create(user);
     }
 
     @GetMapping("/users/{id}")
     public Optional<User> getById(@PathVariable("id") ObjectId id) {
-        return usersRepository.findById(id);
+        return service.getById(id);
     }
 
     @PutMapping("/users/{id}")
     public void updateById(@PathVariable("id") ObjectId id, @Valid @RequestBody User user) {
-        user.set_id(id);
-        usersRepository.save(user);
+        service.updateById(id, user);
     }
 
     @DeleteMapping("/users/{id}")
     public void delete(@PathVariable("id") ObjectId id) {
-        usersRepository.delete(usersRepository.findById(id).get());
+        service.delete(id);
     }
 }

@@ -2,12 +2,10 @@ package com.altran.shoppingcart.controller;
 
 import com.altran.shoppingcart.model.User;
 import com.altran.shoppingcart.repository.UsersRepository;
-import com.altran.shoppingcart.security.JwtConfig;
+import com.altran.shoppingcart.security.jwt.JwtConfig;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -48,7 +46,7 @@ public class AuthController {
                         user.getEmail(), user.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal(); //userDetailsService.loadUserByUsername(user.getEmail());
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", userDetails.getUsername());

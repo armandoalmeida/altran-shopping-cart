@@ -1,5 +1,6 @@
-package com.altran.shoppingcart.security;
+package com.altran.shoppingcart.security.jwt;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -7,17 +8,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @Getter
+@AllArgsConstructor
 public class JwtUserDetails implements UserDetails {
 
     private String username;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
-
-    public JwtUserDetails(String email, String password, Collection<? extends GrantedAuthority> authorities) {
-        this.username = email;
-        this.password = password;
-        this.authorities = authorities;
-    }
 
     @Override
     public boolean isAccountNonExpired() {

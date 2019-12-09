@@ -7,9 +7,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 
 public interface UsersRepository extends MongoRepository<User, ObjectId> {
-
-//    @Query(value = "{'user.email': ?0}")
-//    User getByEmail(String email);
-
     List<User> findByEmail(String email);
 }
