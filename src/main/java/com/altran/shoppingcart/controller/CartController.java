@@ -2,14 +2,12 @@ package com.altran.shoppingcart.controller;
 
 import com.altran.shoppingcart.model.Cart;
 import com.altran.shoppingcart.service.CartService;
-import com.altran.shoppingcart.service.CartService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class CartController {
@@ -28,8 +26,8 @@ public class CartController {
     }
 
     @GetMapping("/carts/{id}")
-    public Optional<Cart> getById(@PathVariable("id") ObjectId id) {
-        return service.getById(id);
+    public Cart getById(@PathVariable("id") ObjectId id) {
+        return service.getById(id).orElse(null);
     }
 
     @PutMapping("/carts/{id}")
@@ -47,14 +45,19 @@ public class CartController {
         return service.findByUser(email);
     }
 
-    @GetMapping("/carts/opened/{id}")
-    public Cart getCartsOpen(@PathVariable("email") String email) {
-        return service.getCartOpen(email);
+    @GetMapping("/carts/open/{email}")
+    public Cart getOpenCart(@PathVariable("email") String email) {
+        return service.getOpenCart(email);
     }
 
-    @PostMapping("/carts/{id}/add/{itemId}")
+    @PostMapping("/carts/{id}/item/{itemId}")
     public Cart addItemToCart(@PathVariable("id") ObjectId id, @PathVariable("itemId") String itemId) {
         return service.addItemToCart(id, itemId);
+    }
+
+    @DeleteMapping("/carts/{id}/item/{itemId}")
+    public Cart removeItemFromCart(@PathVariable("id") ObjectId id, @PathVariable("itemId") String itemId) {
+        return service.removeItemFromCart(id, itemId);
     }
 
 }
