@@ -1,11 +1,14 @@
 package com.altran.shoppingcart.controller;
 
+import com.altran.shoppingcart.dto.TokenDto;
 import com.altran.shoppingcart.model.User;
 import com.altran.shoppingcart.repository.UsersRepository;
+import com.altran.shoppingcart.response.Response;
 import com.altran.shoppingcart.security.jwt.JwtConfig;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,7 +41,7 @@ public class AuthController {
     private JwtConfig jwtConfig;
 
     @PostMapping
-    public String createJWT(@Valid @RequestBody User user)
+    public ResponseEntity<Response<TokenDto>> createJWT(@Valid @RequestBody User user)
             throws AuthenticationException {
 
         Authentication authentication = authenticationManager.authenticate( //
@@ -57,7 +60,7 @@ public class AuthController {
         String token = Jwts.builder().setClaims(claims).setExpiration(getExpirationTime())
                 .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret()).compact();
 
-        return token;
+        return ResponseEntity.ok(new Response<>(new TokenDto(token)));
     }
 
     private Date getExpirationTime() {

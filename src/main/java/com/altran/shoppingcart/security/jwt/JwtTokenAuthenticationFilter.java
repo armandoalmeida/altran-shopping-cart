@@ -29,23 +29,25 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         String token = getToken(request);
 
-        try {
+        if (token != null) {
+            try {
 
-            Claims claims = Jwts.parser().setSigningKey(jwtConfig.getSecret()).parseClaimsJws(token).getBody();
+                Claims claims = Jwts.parser().setSigningKey(jwtConfig.getSecret()).parseClaimsJws(token).getBody();
 
-            if (this.validateTokenExpiration(claims)) {
+                if (this.validateTokenExpiration(claims)) {
 
-                String username = claims.getSubject();
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    String username = claims.getSubject();
+                    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
+            } catch (Exception e) {
+                // nothing
+                // e.printStackTrace();
             }
-        } catch (Exception e) {
-            // nothing
-            // e.printStackTrace();
         }
 
         chain.doFilter(request, response);
@@ -55,8 +57,9 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         String token = request.getHeader(this.jwtConfig.getHeader());
         if (token != null && token.startsWith(this.jwtConfig.getPrefix())) {
             token = token.substring(7);
+            return token;
         }
-        return token;
+        return null;
     }
 
     private boolean validateTokenExpiration(Claims claims) {
