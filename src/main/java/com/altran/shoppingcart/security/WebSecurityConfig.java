@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -43,17 +44,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.csrf().disable()
-                .exceptionHandling().authenticationEntryPoint((req, rsp, e) -> rsp.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                .exceptionHandling()
+                .authenticationEntryPoint((req, rsp, e) -> rsp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Teste"))
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-                .antMatchers("/auth/**", "/users", "/v1/api-docs",
+                .antMatchers("/",
+                        "/auth/**", "/users", "/v2/api-docs",
                         "/swagger-resources/**", "/swagger-ui.html",
                         "/configuration/security", "/webjars/**")
                 .permitAll().anyRequest().authenticated();
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
         http.headers().cacheControl();
 
-        // TODO urls
+        // TODO another urls
 
     }
 
@@ -62,8 +65,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new JwtTokenAuthenticationFilter();
     }
 
-//    @Bean
-//    public JwtConfig jwtConfig() {
-//        return new JwtConfig();
-//    }
 }
