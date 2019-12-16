@@ -1,15 +1,12 @@
 package com.altran.shoppingcart.controller;
 
-import com.altran.shoppingcart.common.Response;
-import com.altran.shoppingcart.dto.TokenDto;
+import com.altran.shoppingcart.security.jwt.JwtToken;
 import com.altran.shoppingcart.model.User;
 import com.altran.shoppingcart.repository.UsersRepository;
 import com.altran.shoppingcart.security.jwt.JwtConfig;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,7 +14,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.security.Key;
@@ -42,7 +42,7 @@ public class AuthController {
     private JwtConfig jwtConfig;
 
     @PostMapping
-    public TokenDto createJWT(@Valid @RequestBody User user)
+    public JwtToken createJWT(@Valid @RequestBody User user)
             throws AuthenticationException {
 
         Authentication authentication = authenticationManager.authenticate( //
@@ -65,7 +65,7 @@ public class AuthController {
                 .setExpiration(getExpirationTime())
                 .signWith(key).compact();
 
-        return new TokenDto(token);
+        return new JwtToken(token);
     }
 
     private Date getExpirationTime() {
