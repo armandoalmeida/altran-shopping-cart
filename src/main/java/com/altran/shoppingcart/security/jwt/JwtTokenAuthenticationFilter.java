@@ -4,6 +4,7 @@ import com.altran.shoppingcart.model.User;
 import com.altran.shoppingcart.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,8 +19,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.Key;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
@@ -37,26 +38,28 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         String token = getToken(request);
 
-        try {
+        if (token != null) {
+            try {
+                Key key = Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes());
+                Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody();
 
-            Claims claims = Jwts.parser().setSigningKey(jwtConfig.getSecret()).parseClaimsJws(token).getBody();
+                if (this.validateTokenExpiration(claims)) {
 
-            if (this.validateTokenExpiration(claims)) {
-
-                String username = claims.getSubject();
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    Optional<User> user = userService.getById(new ObjectId(username));
-                    if (user.isPresent()) {
-                        UserDetails userDetails = this.userDetailsService.loadUserByUsername(user.get().getEmail());
-                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    String username = claims.getSubject();
+                    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        Optional<User> user = userService.getById(new ObjectId(username));
+                        if (user.isPresent()) {
+                            UserDetails userDetails = this.userDetailsService.loadUserByUsername(user.get().getEmail());
+                            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                            SecurityContextHolder.getContext().setAuthentication(authentication);
+                        }
                     }
                 }
+            } catch (Exception e) {
+                // nothing
+                // e.printStackTrace();
             }
-        } catch (Exception e) {
-            // nothing
-            // e.printStackTrace();
         }
 
         chain.doFilter(request, response);
@@ -66,8 +69,9 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
         String token = request.getHeader(this.jwtConfig.getHeader());
         if (token != null && token.startsWith(this.jwtConfig.getPrefix())) {
             token = token.substring(7);
+            return token;
         }
-        return token;
+        return null;
     }
 
     private boolean validateTokenExpiration(Claims claims) {

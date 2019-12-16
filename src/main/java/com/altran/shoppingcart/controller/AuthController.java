@@ -7,6 +7,7 @@ import com.altran.shoppingcart.repository.UsersRepository;
 import com.altran.shoppingcart.security.jwt.JwtConfig;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +42,7 @@ public class AuthController {
     private JwtConfig jwtConfig;
 
     @PostMapping
-    public ResponseEntity<Response<TokenDto>> createJWT(@Valid @RequestBody User user)
+    public TokenDto createJWT(@Valid @RequestBody User user)
             throws AuthenticationException {
 
         Authentication authentication = authenticationManager.authenticate( //
@@ -56,10 +58,14 @@ public class AuthController {
             userDetails.getAuthorities().forEach(authority -> claims.put("role", authority.getAuthority()));
         claims.put("created", new Date());
 
-        String token = Jwts.builder().setClaims(claims).setExpiration(getExpirationTime())
-                .signWith(SignatureAlgorithm.HS512, jwtConfig.getSecret()).compact();
+        Key key = Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes());
 
-        return ResponseEntity.ok(new Response<TokenDto>(new TokenDto(token)));
+        String token = Jwts.builder()
+                .setClaims(claims)
+                .setExpiration(getExpirationTime())
+                .signWith(key).compact();
+
+        return new TokenDto(token);
     }
 
     private Date getExpirationTime() {
