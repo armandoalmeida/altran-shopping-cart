@@ -1,7 +1,10 @@
 package com.altran.shoppingcart.security.jwt;
 
+import com.altran.shoppingcart.model.User;
+import com.altran.shoppingcart.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
@@ -24,6 +29,9 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtConfig jwtConfig;
+
+    @Autowired
+    private UserService userService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
@@ -37,10 +45,13 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
 
                 String username = claims.getSubject();
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    Optional<User> user = userService.getById(new ObjectId(username));
+                    if (user.isPresent()) {
+                        UserDetails userDetails = this.userDetailsService.loadUserByUsername(user.get().getEmail());
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
             }
         } catch (Exception e) {

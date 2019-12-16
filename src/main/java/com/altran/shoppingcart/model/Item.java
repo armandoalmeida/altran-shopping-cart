@@ -12,8 +12,8 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 @Document
-public @Data
-class Item {
+@Data
+public class Item {
     @MongoId
     public ObjectId _id;
 

@@ -25,6 +25,6 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("User not found");
 
         User user = users.get(0);
-        return new JwtUserDetails(user.getEmail(), user.getPassword(), null);
+        return new JwtUserDetails(user.getId(), user.getPassword(), null);
     }
 }

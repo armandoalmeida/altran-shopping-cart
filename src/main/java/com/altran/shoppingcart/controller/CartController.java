@@ -45,9 +45,9 @@ public class CartController {
         return service.findByUser(email);
     }
 
-    @GetMapping("/carts/open/{email}")
-    public Cart getOpenCart(@PathVariable("email") String email) {
-        return service.getOpenCart(email);
+    @GetMapping("/carts/open/{userId}")
+    public Cart getOpenCart(@PathVariable("userId") String userId) {
+        return service.getOpenCart(userId);
     }
 
     @PostMapping("/carts/{id}/item/{itemId}")
@@ -58,6 +58,11 @@ public class CartController {
     @DeleteMapping("/carts/{id}/item/{itemId}")
     public Cart removeItemFromCart(@PathVariable("id") ObjectId id, @PathVariable("itemId") String itemId) {
         return service.removeItemFromCart(id, itemId);
+    }
+
+    @DeleteMapping("/carts/{id}/all/{itemId}")
+    public Cart removeAllItems(@PathVariable("id") ObjectId id, @PathVariable("itemId") String itemId) {
+        return service.removeAllItems(id, itemId);
     }
 
 }

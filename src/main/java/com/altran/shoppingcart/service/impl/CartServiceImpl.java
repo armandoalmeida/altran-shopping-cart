@@ -1,7 +1,9 @@
 package com.altran.shoppingcart.service.impl;
 
 import com.altran.shoppingcart.enumeration.CartStatusEnum;
+import com.altran.shoppingcart.exception.DocumentNotFoundException;
 import com.altran.shoppingcart.model.Cart;
+import com.altran.shoppingcart.model.CartItem;
 import com.altran.shoppingcart.model.Item;
 import com.altran.shoppingcart.repository.CartRepository;
 import com.altran.shoppingcart.repository.ItemRepository;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -35,7 +38,9 @@ public class CartServiceImpl implements CartService {
         cart.set_id(ObjectId.get());
         cart.setId(cart.get_id().toString());
         cart.setUser(SecurityUtil.getCurrentUserName());
-        cart.setStatus(CartStatusEnum.OPEN);
+        cart.setStatus(CartStatusEnum.OPENED);
+        if (cart.getItems() == null)
+            cart.setItems(new ArrayList<CartItem>());
         cart.setTotal(getTotal(cart));
         repository.save(cart);
         return cart;
@@ -68,53 +73,79 @@ public class CartServiceImpl implements CartService {
     public Cart getOpenCart(String user) {
         List<Cart> carts = findByUser(user);
         for (Cart cart : carts) {
-            if (CartStatusEnum.OPEN.equals(cart.getStatus()))
+            if (CartStatusEnum.OPENED.equals(cart.getStatus()))
                 return cart;
         }
-        return null;
+
+        return create(new Cart(new ArrayList<CartItem>()));
     }
 
     @Override
     public Cart addItemToCart(ObjectId id, String itemId) {
         Cart cart = getById(id).orElse(null);
         if (cart != null) {
-            if (cart.getItems() == null)
+            AtomicBoolean addNew = new AtomicBoolean(true);
+            if (cart.getItems() != null) {
+                cart.getItems().forEach(cartItem -> {
+                    if (cartItem.getItem().getId().equals(itemId)) {
+                        cartItem.setQuantity(cartItem.getQuantity() + 1);
+                        addNew.set(false);
+                    }
+                });
+            } else
                 cart.setItems(new ArrayList<>());
-            Optional<Item> item = itemRepository.findById(new ObjectId(itemId));
-            item.ifPresent(i -> cart.getItems().add(i));
+
+            if (addNew.get()) {
+                Optional<Item> item = itemRepository.findById(new ObjectId(itemId));
+                item.ifPresent(i -> cart.getItems().add(new CartItem(item.get(), 1)));
+            }
 
             updateById(id, cart);
             return cart;
         }
-        return null;
+        throw new DocumentNotFoundException(Cart.class.getName());
     }
+
 
     @Override
     public Cart removeItemFromCart(ObjectId id, String itemId) {
         Cart cart = getById(id).orElse(null);
-        if (cart != null) {
-            if (cart.getItems() != null) {
-                Iterator<Item> i = cart.getItems().iterator();
-                while (i.hasNext()) {
-                    Item item = i.next();
-                    if (item.getId().equals(itemId)) {
+        if (cart != null && cart.getItems() != null) {
+            Iterator<CartItem> i = cart.getItems().iterator();
+            while (i.hasNext()) {
+                CartItem item = i.next();
+                if (item.getItem().getId().equals(itemId)) {
+                    item.setQuantity(item.getQuantity() - 1);
+                    if (item.getQuantity() == 0)
                         i.remove();
-                        break;
-                    }
+                    break;
                 }
             }
 
             updateById(id, cart);
             return cart;
         }
-        return null;
+        throw new DocumentNotFoundException(Cart.class.getName());
+    }
+
+    @Override
+    public Cart removeAllItems(ObjectId id, String itemId) {
+        Cart cart = getById(id).orElse(null);
+        if (cart != null && cart.getItems() != null) {
+            cart.getItems().removeIf(cartItem -> cartItem.getItem().getId().equals(itemId));
+            updateById(id, cart);
+            return cart;
+        }
+        throw new DocumentNotFoundException(Cart.class.getName());
     }
 
     private static BigDecimal getTotal(Cart cart) {
         if (cart.getItems() != null)
             return cart.getItems().stream()
-                    .map(Item::getValue)
+                    .map(cartItem -> {
+                        return cartItem.getItem().getValue().multiply(new BigDecimal(cartItem.getQuantity()));
+                    })
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return null;
+        return BigDecimal.ZERO;
     }
 }
