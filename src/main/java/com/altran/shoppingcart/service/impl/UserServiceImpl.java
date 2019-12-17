@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
     public void updateById(ObjectId id, User user) {
         user.set_id(id);
         user.setId(user.get_id().toString());
+        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         repository.save(user);
     }
 
