@@ -26,4 +26,4 @@ https://altra-shopping-cart-backend.herokuapp.com/swagger-ui.html
 * Lombok
 * Spring Test
 * Webserver Jetty
-* Maven ou Gradle
+* Maven
