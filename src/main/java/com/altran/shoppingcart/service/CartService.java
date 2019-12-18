@@ -17,4 +17,6 @@ public interface CartService extends CrudService<Cart> {
     Cart removeItemFromCart(ObjectId id, String itemId);
 
     Cart removeAllItems(ObjectId id, String itemId);
+
+    Cart closeCart(ObjectId id);
 }

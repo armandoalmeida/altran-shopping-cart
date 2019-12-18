@@ -35,6 +35,7 @@ public class CartController {
         service.updateById(id, cart);
     }
 
+
     @DeleteMapping("/carts/{id}")
     public void delete(@PathVariable("id") ObjectId id) {
         service.delete(id);
@@ -63,6 +64,11 @@ public class CartController {
     @DeleteMapping("/carts/{id}/all/{itemId}")
     public Cart removeAllItems(@PathVariable("id") ObjectId id, @PathVariable("itemId") String itemId) {
         return service.removeAllItems(id, itemId);
+    }
+
+    @PostMapping("/carts/{id}/close")
+    public void closeCart(@PathVariable("id") ObjectId id) {
+        service.closeCart(id);
     }
 
 }

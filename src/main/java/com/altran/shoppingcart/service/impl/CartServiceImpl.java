@@ -139,6 +139,17 @@ public class CartServiceImpl implements CartService {
         throw new DocumentNotFoundException(Cart.class.getName());
     }
 
+    @Override
+    public Cart closeCart(ObjectId id) {
+        Cart cart = getById(id).orElse(null);
+        if (cart != null && cart.getItems() != null) {
+            cart.setStatus(CartStatusEnum.CLOSED);
+            updateById(id, cart);
+            return cart;
+        }
+        throw new DocumentNotFoundException(Cart.class.getName());
+    }
+
     private static BigDecimal getTotal(Cart cart) {
         if (cart.getItems() != null)
             return cart.getItems().stream()
