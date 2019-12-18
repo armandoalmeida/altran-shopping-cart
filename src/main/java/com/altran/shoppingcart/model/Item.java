@@ -1,5 +1,6 @@
 package com.altran.shoppingcart.model;
 
+import lombok.Builder;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
 
 @Document
 @Data
+@Builder
 public class Item {
     @MongoId
     public ObjectId _id;

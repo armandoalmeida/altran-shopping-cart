@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 
 public interface CartRepository extends MongoRepository<Cart, ObjectId> {
-    List<Cart> findByUser(String user);
     List<Cart> findByUserOrderByTotalAsc(String user);
     List<Cart> findByStatus(CartStatusEnum status);
 }
