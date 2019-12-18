@@ -13,15 +13,15 @@ mvn clean install
 
 Documentation: http://localhost:8080/swagger-ui.html 
 
-## Cloud deploy
+## Cloud deploy - Heroku
 
-The project was deployed on Heroku platform:
+The project was deployed on **Heroku** platform:
 https://altra-shopping-cart-backend.herokuapp.com/swagger-ui.html
 
 ## Stack
 
-* JDK >= 8
-* Spring boot 2.1.8
+* JDK 8
+* Spring boot 2.2.2.RELEASE
 * MongoDB
 * Lombok
 * Spring Test
