@@ -41,12 +41,12 @@ public class CartController {
         service.delete(id);
     }
 
-    @GetMapping("/carts/user/{id}")
-    public List<Cart> getByUser(@PathVariable("email") String email) {
-        return service.findByUser(email);
+    @GetMapping("/carts/{userId}/all")
+    public List<Cart> getByUser(@PathVariable("userId") String userId) {
+        return service.findByUser(userId);
     }
 
-    @GetMapping("/carts/open/{userId}")
+    @GetMapping("/carts/{userId}/open")
     public Cart getOpenCart(@PathVariable("userId") String userId) {
         return service.getOpenCart(userId);
     }
