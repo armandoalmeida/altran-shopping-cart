@@ -11,6 +11,8 @@ import com.altran.shoppingcart.security.util.SecurityUtil;
 import com.altran.shoppingcart.service.CartService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -66,16 +68,14 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<Cart> findByUser(String user) {
-        return repository.findByUser(user);
+        return repository.findByUserOrderByTotalAsc(user);
     }
 
     @Override
     public Cart getOpenCart(String user) {
-        List<Cart> carts = findByUser(user);
-        for (Cart cart : carts) {
-            if (CartStatusEnum.OPENED.equals(cart.getStatus()))
-                return cart;
-        }
+        List<Cart> carts = repository.findByStatus(CartStatusEnum.OPENED);
+        if (carts != null && !carts.isEmpty())
+            return carts.get(0);
 
         return create(new Cart(new ArrayList<CartItem>()));
     }
@@ -150,13 +150,13 @@ public class CartServiceImpl implements CartService {
         throw new DocumentNotFoundException(Cart.class.getName());
     }
 
-    private static BigDecimal getTotal(Cart cart) {
+    private static Double getTotal(Cart cart) {
         if (cart.getItems() != null)
             return cart.getItems().stream()
                     .map(cartItem -> {
-                        return cartItem.getItem().getValue().multiply(new BigDecimal(cartItem.getQuantity()));
+                        return cartItem.getItem().getValue() * cartItem.getQuantity();
                     })
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return BigDecimal.ZERO;
+                    .reduce(0d, Double::sum);
+        return 0d;
     }
 }

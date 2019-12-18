@@ -23,7 +23,7 @@ public class Cart {
     public String id;
     private List<CartItem> items;
     private CartStatusEnum status;
-    private BigDecimal total;
+    private Double total;
 
     private String user;
 

@@ -1,5 +1,6 @@
 package com.altran.shoppingcart.repository;
 
+import com.altran.shoppingcart.enumeration.CartStatusEnum;
 import com.altran.shoppingcart.model.Cart;
 import com.altran.shoppingcart.model.Item;
 import org.bson.types.ObjectId;
@@ -9,4 +10,6 @@ import java.util.List;
 
 public interface CartRepository extends MongoRepository<Cart, ObjectId> {
     List<Cart> findByUser(String user);
+    List<Cart> findByUserOrderByTotalAsc(String user);
+    List<Cart> findByStatus(CartStatusEnum status);
 }

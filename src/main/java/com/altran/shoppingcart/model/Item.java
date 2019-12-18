@@ -22,7 +22,7 @@ public class Item {
     private String name;
     @NotNull
     @DecimalMin(value = "0.1", inclusive = true)
-    private BigDecimal value;
+    private Double value;
 
     private String user;
 }
